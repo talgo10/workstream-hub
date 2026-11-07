@@ -1,0 +1,31 @@
+# Omnigent Shunt Policy — Enforces 350-Line Context Gate
+version: "1.0"
+name: "workstream-shunt-policy"
+description: "Blocks un-ranged full-file reads >350 lines and routes bulk reads/boilerplate generation to ws_shunt_read and ws_shunt_write."
+
+env:
+  SHUNT_MIN_LINES: 350
+
+rules:
+  - id: gate-large-file-reads
+    match:
+      tool: ["read_file", "view_file", "cat"]
+    pre_hook:
+      command: "python3 ~/.workstreams/bin/check_file_size_hook.py ${file_path} --offset ${offset} --limit ${limit}"
+      on_block:
+        action: deny
+        message: >
+          BLOCKED by Shunt Policy (SHUNT_MIN_LINES=350): Never read full files >350 lines into main context.
+          1. Query `paparats-mcp` (`search_code` / `find_usages`) for AST-scoped retrieval.
+          2. Pass explicit `offset` and `limit` (<= 350 lines).
+          3. Call `ws_shunt_read(files=[...], question="...")` for out-of-band `<250 token` bullet summaries.
+
+  - id: offload-boilerplate-generation
+    match:
+      intent: ["boilerplate", "scaffolding", "repetitive_tests"]
+    recommendation:
+      tool: "ws_shunt_write"
+      message: >
+        Use `ws_shunt_write(effort_id, lease_token, target_file, spec_prompt, reference_file)`
+        to generate repetitive code/tests directly on disk without polluting the main session transcript.
+
