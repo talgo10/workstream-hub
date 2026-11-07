@@ -55,7 +55,7 @@ flowchart TD
 Clone the repository and run `make install`:
 
 ```bash
-git clone <your-repo-url> workstream-hub
+git clone https://github.com/talgo10/workstream-hub.git
 cd workstream-hub
 make install
 ```
@@ -315,3 +315,4 @@ launchctl unload ~/Library/LaunchAgents/com.workstreams.ui.plist
 launchctl load ~/Library/LaunchAgents/com.workstreams.ui.plist
 ```
 Logs are available at `/tmp/workstreams-ui.out.log` and `/tmp/workstreams-ui.err.log`.
+
